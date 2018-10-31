@@ -1,0 +1,74 @@
+---
+title: 'IS 590: Data Visualization Homework 7'
+author: "Nurlan Khamzin"
+date: '29 окт€бр€ 2018 г '
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# Preparing the data
+marvel = read.csv("C:/Users/khamz/Downloads/Marvel.csv", sep = ",")
+dc = read.csv("C:/Users/khamz/Downloads/DC.csv", sep = ",")
+marvel_year = na.omit(as.numeric(as.character(marvel$Year)))
+```
+
+
+```{r, fig.height=5}
+## Histograms
+# legend may look weird since Dc holds two categories in histogram
+hist(dc$YEAR, xlab = "Year", main = 'Histogram of DC and Marvel Characters Creation Period', col=rgb(1,0,0,0.5), xlim = c(1930, 2018), ylim=c(0,2500))
+hist(marvel_year[marvel_year>1800 & marvel_year<2018], xlab = "Year", col=rgb(0,0,1,0.5), xlim = c(1930, 2018), ylim=c(0,2500), add=T)
+legend("topleft", c('DC', 'Marvel', 'DC (difference)'), col=c('purple', 'cornflowerblue', 'coral2'), lwd=10)
+box()
+
+# X axis looks weird, but I did not find a solution in web to change it, xlim does not work.
+library(plotrix)
+l = list(dc$YEAR, marvel_year[marvel_year>1800 & marvel_year<2018])
+multhist(l, main = 'Histogram of DC and Marvel Characters Creation Period', xlab = "Year", ylab = "Frequency")
+```
+
+```{r, fig.height=5, fig.width=10}
+## Pie Charts
+# table(unlist(dc$ALIGN)) 
+# table(unlist(marvel$ALIGN))
+# it gives us that Bad Characters=6704, Good Characters=4619, Neutral Characters = 2202 in Marve;;
+# and Bad Characters=2885, Good Characters=2809, Neutral Characters = 559 in DC
+library(plotrix)
+par(mfrow=c(1,2))
+chars_mar = c(6704, 4619, 2202)
+chars_dc = c(2885, 2809, 559)
+labels = c('Bad', 'Good', 'Neutral')
+pie3D(chars_mar, labels = labels, explode = 0.1, main = "Marvel Characters' Type Pie Chart", col = c('red1', 'dodgerblue2', 'palegreen'))
+pie3D(chars_dc, labels = labels, explode = 0.1, main = "DC Characters' Type Pie Chart", col = c('red1', 'dodgerblue2', 'palegreen'))
+box(which = 'inner')
+```
+
+```{r,fig.height=4.65, fig.width=10}
+##Bar Charts
+
+library(ggplot2)
+library(gridExtra)
+new_data_dc = data.frame('name' = as.character(dc$name),
+                         'appearances' = dc$APPEARANCES,
+                          stringsAsFactors=FALSE)
+new_data_marvel = data.frame('name' = as.character(marvel$name),
+                             'appearances' = as.numeric(as.character(marvel$APPEARANCES)),
+                              stringsAsFactors=FALSE)
+
+# DC characters plot
+dc_plot = ggplot(new_data_dc[1:10,], aes(x=reorder(name,-appearances),y = appearances), main = 'TOP-10 DC Characters by Appearance') + geom_bar(stat = "identity", fill = "#0b3142") + theme(axis.text.x = element_text(angle = 90)) + ggtitle('TOP-10 DC Characters by Appearance') + xlab("DC Characters") + ylab("Number of Appearances in Comics") + theme(plot.title = element_text(hjust = 0.5), text = element_text(size=9))
+
+# Marvel characters plot
+mar_plot = ggplot(new_data_marvel[1:10,], aes(x=reorder(name,-appearances),y = appearances), main = 'TOP-10 Marvel Characters by Appearance') + geom_bar(stat = "identity", fill = "#ff0022") + theme(axis.text.x = element_text(angle = 90)) + ggtitle('TOP-10 Marvel Characters by Appearance') + xlab("Marvel Characters") + ylab("Number of Appearances in Comics") + theme(plot.title = element_text(hjust = 0.5), text = element_text(size=9))
+
+grid.arrange(dc_plot, mar_plot, nrow = 1)
+```
+
+
+
+
+
